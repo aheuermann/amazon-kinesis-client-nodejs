@@ -174,7 +174,16 @@ function httpDownloadFile(requestUrl, destinationFile, redirectCount, callback) 
     callback('Reached maximum redirects. ' + requestUrl + ' could not be downloaded.');
     return;
   }
-  var protocol = (url.parse(requestUrl).protocol === 'https' ? https : http);
+  var parsedProtocol = url.parse(requestUrl).protocol;
+
+  var protocol = null;
+  if (parsedProtocol.startsWith('http')) {
+    protocol = http;
+    if (parsedProtocol.startsWith('https')) protocol = https;
+  }
+  if (!protocol) {
+    callback('Unable to determine protocol for requestUrl. ' + requestUrl + ' parsed protocol="' + parsedProtocol + '".');
+  }
   var options = {
     hostname: url.parse(requestUrl).hostname,
     path: url.parse(requestUrl).path,
